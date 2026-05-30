@@ -7,4 +7,4 @@ This repository currently contains the following skills:
 - `jamming` — `./jamming/SKILL.md`
 - `caveman` — `./caveman/SKILL.md`
 - `plan` — `./plan/SKILL.md`
-- `supermemory-search` — `./supermemory-fetch.md`
+- `supermemory-search` — `./supermemory-fetch.md` (skill file uses this filename)
