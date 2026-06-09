@@ -1,15 +1,112 @@
-# Skills
+# Agent Skills (Codex / Claude Code / Antigravity / Pi / Hermes)
 
-This repository currently contains the following skills:
+A curated collection of custom agent skills for sharper engineering, product thinking, planning, execution, documentation, and interface design.
 
-- `senior-engineer-brainstorm` — `./senior-engineer-brainstorm/SKILL.md`
-- `skill-ceo-review` — `./skill-ceo-review/SKILL.md`
-- `jamming` — `./jamming/SKILL.md`
-- `caveman` — `./caveman/SKILL.md`
-- `plan` — `./plan/SKILL.md`
-- `supermemory-search` — `./supermemory-fetch.md` (skill file uses this filename)
-- `clean-code` — `./clean-code/SKILL.md`
-- `execute` — `./execute/SKILL.md`
-- `ask` — `./ask/SKILL.md`
-- `interface-design` — `./interface-design/SKILL.md`
-- `steve-jobs-thinking` — `./steve-jobs-thinking/SKILL.md`
+This repository is built for people who want their AI coding assistant to behave less like a generic chatbot and more like a reliable collaborator with clear modes, strong taste, and task-specific judgment.
+
+## Why This Repo Exists
+
+Most AI assistants are capable, but their behavior is often too broad. A good skill gives the assistant a sharper operating mode:
+
+- when to trigger
+- how to think
+- what to avoid
+- what output format to use
+- where to push back
+- when to act and when to stay read-only
+
+These skills turn repeated working styles into reusable instructions.
+
+## Skill Catalog
+
+| Skill | Purpose | File |
+| --- | --- | --- |
+| `senior-engineer-brainstorm` | Turns rough feature ideas into production-minded technical approaches, architecture options, risks, and implementation prompts. | [`senior-engineer-brainstorm/SKILL.md`](senior-engineer-brainstorm/SKILL.md) |
+| `skill-ceo-review` | Reviews skill ideas through a founder/product lens before testing, with emphasis on scope, trigger quality, and ambition. | [`skill-ceo-review/SKILL.md`](skill-ceo-review/SKILL.md) |
+| `jamming` | Collaborative thinking mode that reflects, maps knowns vs unknowns, asks one sharp question, and avoids premature answers. | [`jamming/SKILL.md`](jamming/SKILL.md) |
+| `caveman` | Ultra-compressed communication mode for reducing token usage while preserving technical accuracy. | [`caveman/SKILL.md`](caveman/SKILL.md) |
+| `plan` | Strict read-only planning mode for observing, scoping, and proposing next steps without modifying files. | [`plan/SKILL.md`](plan/SKILL.md) |
+| `supermemory-search` | Searches a personal Supermemory knowledge base when the user asks to recall saved knowledge. | [`supermemory-fetch.md`](supermemory-fetch.md) |
+| `clean-code` | Reviews and refactors code for readability, maintainability, naming, structure, and reduced complexity. | [`clean-code/SKILL.md`](clean-code/SKILL.md) |
+| `execute` | Action mode for moving from planning into implementation, verification, and delivery. | [`execute/SKILL.md`](execute/SKILL.md) |
+| `ask` | Answer-only mode for direct questions, with no edits or state-changing commands. | [`ask/SKILL.md`](ask/SKILL.md) |
+| `interface-design` | Product interface design skill for dashboards, tools, settings pages, SaaS apps, and data-heavy workflows. | [`interface-design/SKILL.md`](interface-design/SKILL.md) |
+| `steve-jobs-thinking` | Product taste mode focused on ruthless simplicity, user experience, and opinionated design decisions. | [`steve-jobs-thinking/SKILL.md`](steve-jobs-thinking/SKILL.md) |
+| `the-razor` | Critical thinking engine that stress-tests arguments using Occam's, Sagan, Hitchens's, and Alder's razors. | [`the-razor/SKILL.md`](the-razor/SKILL.md) |
+
+## Repository Structure
+
+```text
+.
+├── README.md
+├── ask/
+│   └── SKILL.md
+├── caveman/
+│   └── SKILL.md
+├── clean-code/
+│   └── SKILL.md
+├── execute/
+│   └── SKILL.md
+├── interface-design/
+│   ├── SKILL.md
+│   └── references/
+├── jamming/
+│   └── SKILL.md
+├── plan/
+│   └── SKILL.md
+├── senior-engineer-brainstorm/
+│   └── SKILL.md
+├── skill-ceo-review/
+│   └── SKILL.md
+├── steve-jobs-thinking/
+│   └── SKILL.md
+├── the-razor/
+│   └── SKILL.md
+└── supermemory-fetch.md
+```
+
+## How To Use
+
+Each skill is self-contained. Open the relevant `SKILL.md`, review the trigger description at the top, and place the skill in your agent's skills directory or adapt it for your local setup.
+
+Typical usage patterns:
+
+- Use `plan` before touching an unfamiliar codebase.
+- Use `senior-engineer-brainstorm` before committing to an architecture.
+- Use `execute` when the direction is clear and implementation should begin.
+- Use `clean-code` when code works but feels harder to read than it should.
+- Use `interface-design` when building real product surfaces, not marketing pages.
+- Use `jamming` when the goal is better thinking, not immediate output.
+
+## Documentation Standards
+
+Every skill should make the following obvious:
+
+- **Name**: short, memorable, and specific
+- **Description**: clear trigger conditions and intended use
+- **Behavior**: what the assistant should do differently
+- **Boundaries**: what the assistant must not do
+- **Output format**: predictable structure when useful
+- **Persistence rules**: whether the mode lasts across turns
+
+Good skills are not long because they are verbose. They are long only where precision prevents bad behavior.
+
+## Security Note
+
+Do not commit private API keys, tokens, credentials, or personal secrets inside skill files. If a skill needs external service access, prefer environment variables and document the required variable names instead of hardcoding credentials.
+
+## Contributing
+
+Improvements are welcome when they make a skill more reliable, easier to trigger correctly, or safer to use.
+
+Before adding a new skill:
+
+1. Make sure it solves a repeated problem.
+2. Keep the trigger description specific.
+3. Define what the assistant should refuse or avoid.
+4. Include examples only when they clarify behavior.
+5. Prefer one sharp skill over one broad skill that tries to do everything.
+
+## License
+
+No license has been specified yet. Add one before distributing or reusing this repository publicly.
