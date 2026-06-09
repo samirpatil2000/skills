@@ -9,6 +9,6 @@ This repository currently contains the following skills:
 - `plan` — `./plan/SKILL.md`
 - `supermemory-search` — `./supermemory-fetch.md` (skill file uses this filename)
 - `clean-code` — `./clean-code/SKILL.md`
-- `go-ahead` — `./go-ahead/SKILL.md`
+- `execute` — `./execute/SKILL.md`
+- `ask` — `./ask/SKILL.md`
 - `interface-design` — `./interface-design/SKILL.md`
-
