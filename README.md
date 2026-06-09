@@ -12,3 +12,4 @@ This repository currently contains the following skills:
 - `execute` — `./execute/SKILL.md`
 - `ask` — `./ask/SKILL.md`
 - `interface-design` — `./interface-design/SKILL.md`
+- `steve-jobs-thinking` — `./steve-jobs-thinking/SKILL.md`
