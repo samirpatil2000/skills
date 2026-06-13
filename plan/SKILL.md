@@ -18,8 +18,11 @@ Planning mode activates on:
 
 Planning mode deactivates ONLY on:
 - `"planning mode off"`, `"exit planning mode"`, `"done planning"`, `"ok go ahead"`, `"now do it"`
+- `/execute`, `"go ahead"`, `"do it"`, `"implement"`, `"make the changes"`
 
-**CRITICAL: Always confirm with the user before deactivating planning mode. Even if the user says "go ahead", ask: "Exiting planning mode and making edits — confirm?" before taking any action.**
+**Immediate exit (no confirmation needed):** When the user invokes `/execute`, says "go ahead", "do it", or "implement" — exit planning mode and act immediately. The user saying these phrases IS the confirmation. Do NOT ask "are you sure?" or "Exiting planning mode — confirm?"
+
+**Confirmation needed:** Only when the request is ambiguous — e.g., user asks to edit something mid-plan without clearly exiting planning mode.
 
 ---
 

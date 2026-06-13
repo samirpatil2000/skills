@@ -33,6 +33,7 @@ These skills turn repeated working styles into reusable instructions.
 | `interface-design` | Product interface design skill for dashboards, tools, settings pages, SaaS apps, and data-heavy workflows. | [`interface-design/SKILL.md`](interface-design/SKILL.md) |
 | `steve-jobs-thinking` | Product taste mode focused on ruthless simplicity, user experience, and opinionated design decisions. | [`steve-jobs-thinking/SKILL.md`](steve-jobs-thinking/SKILL.md) |
 | `the-razor` | Critical thinking engine that stress-tests arguments using Occam's, Sagan, Hitchens's, and Alder's razors. | [`the-razor/SKILL.md`](the-razor/SKILL.md) |
+| `opencode-fusion` | Multi-model parallel execution, judge analysis, and synthesis — OpenRouter Fusion-style workflows via OpenCode CLI. | [`opencode-fusion/SKILL.md`](opencode-fusion/SKILL.md) |
 
 ## Repository Structure
 
@@ -62,6 +63,9 @@ These skills turn repeated working styles into reusable instructions.
 │   └── SKILL.md
 ├── the-razor/
 │   └── SKILL.md
+├── opencode-fusion/
+│   ├── SKILL.md
+│   └── run_fusion.sh
 └── supermemory-fetch.md
 ```
 

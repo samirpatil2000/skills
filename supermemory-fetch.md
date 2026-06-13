@@ -12,7 +12,7 @@ Search across the user's personal Supermemory knowledge base and return relevant
 - **Endpoint**: `https://api.supermemory.ai/v4/search`
 - **Method**: POST
 - **Auth**: Bearer token in `Authorization` header
-- **API Key**: `sm_Sfe8KkkT9wmkLoY3wp8SsZ_fzQ107Xw3X6VMZ2RB8fx3a5kGKODdYETCGySqf6v7KBpuv8yjRcMESJtpHeUNXWJ`
+- **API Key**: `sm_Sfe8KkkT9wmkLoY3wp8SsZ_`
 
 ## Workflow
 
