@@ -35,6 +35,7 @@ These skills turn repeated working styles into reusable instructions.
 | `the-razor` | Critical thinking engine that stress-tests arguments using Occam's, Sagan, Hitchens's, and Alder's razors. | [`the-razor/SKILL.md`](the-razor/SKILL.md) |
 | `opencode-fusion` | Multi-model parallel execution, judge analysis, and synthesis — OpenRouter Fusion-style workflows via OpenCode CLI. | [`opencode-fusion/SKILL.md`](opencode-fusion/SKILL.md) |
 | `debug-issue` | Systematic debugger for finding root causes. Generates hypotheses, suggests fixes, and provides verification paths for any broken code or unexpected behavior. | [`debug-issue/SKILL.md`](debug-issue/SKILL.md) |
+| `terminal` | Executes user-provided shell commands as-is and returns raw output without commentary. | [`terminal/SKILL.md`](terminal/SKILL.md) |
 
 
 ## Repository Structure
@@ -70,6 +71,8 @@ These skills turn repeated working styles into reusable instructions.
 ├── opencode-fusion/
 │   ├── SKILL.md
 │   └── run_fusion.sh
+├── terminal/
+│   └── SKILL.md
 └── supermemory-fetch.md
 ```
 
