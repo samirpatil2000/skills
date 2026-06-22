@@ -36,6 +36,7 @@ These skills turn repeated working styles into reusable instructions.
 | `opencode-fusion` | Multi-model parallel execution, judge analysis, and synthesis — OpenRouter Fusion-style workflows via OpenCode CLI. | [`opencode-fusion/SKILL.md`](opencode-fusion/SKILL.md) |
 | `debug-issue` | Systematic debugger for finding root causes. Generates hypotheses, suggests fixes, and provides verification paths for any broken code or unexpected behavior. | [`debug-issue/SKILL.md`](debug-issue/SKILL.md) |
 | `terminal` | Executes user-provided shell commands as-is and returns raw output without commentary. | [`terminal/SKILL.md`](terminal/SKILL.md) |
+| `align` | Interactive interview mode to resolve design decisions, clarify requirements, and eliminate ambiguity. | [`align/SKILL.md`](align/SKILL.md) |
 
 
 ## Repository Structure
@@ -43,6 +44,8 @@ These skills turn repeated working styles into reusable instructions.
 ```text
 .
 ├── README.md
+├── align/
+│   └── SKILL.md
 ├── ask/
 │   └── SKILL.md
 ├── caveman/
