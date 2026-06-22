@@ -83,14 +83,15 @@ These skills turn repeated working styles into reusable instructions.
 
 Each skill is self-contained. Open the relevant `SKILL.md`, review the trigger description at the top, and place the skill in your agent's skills directory or adapt it for your local setup.
 
-Typical usage patterns:
+## 💡 Personal Usage Guide: What to Use When
 
-- Use `plan` before touching an unfamiliar codebase.
-- Use `senior-engineer-brainstorm` before committing to an architecture.
-- Use `execute` when the direction is clear and implementation should begin.
-- Use `clean-code` when code works but feels harder to read than it should.
-- Use `interface-design` when building real product surfaces, not marketing pages.
-- Use `jamming` when the goal is better thinking, not immediate output.
+While there are many skills here, my typical workflow relies heavily on these core skills:
+
+- **`jamming`**: Use when the idea is fuzzy and I just want to brainstorm architecture or strategy together. (Thinking Phase)
+- **`align`**: Use when I think I know what I want to build, but need you to interrogate me and lock in the requirements/edge cases. (Requirement Phase)
+- **`plan`**: Use when the requirements are set and I need a step-by-step roadmap of the codebase before writing code. (Scoping Phase)
+- **`steve-jobs-thinking`**: Use when working on UI/UX changes to ensure ruthless simplicity, great taste, and a user-obsessed design. (Design Phase)
+- **`debug-issue`**: Use whenever there's a bug, crash, or unexpected behavior. (Fixing Phase)
 
 ## Documentation Standards
 
