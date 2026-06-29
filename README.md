@@ -37,6 +37,7 @@ These skills turn repeated working styles into reusable instructions.
 | `debug-issue` | Systematic debugger for finding root causes. Generates hypotheses, suggests fixes, and provides verification paths for any broken code or unexpected behavior. | [`debug-issue/SKILL.md`](debug-issue/SKILL.md) |
 | `terminal` | Executes user-provided shell commands as-is and returns raw output without commentary. | [`terminal/SKILL.md`](terminal/SKILL.md) |
 | `align` | Interactive interview mode to resolve design decisions, clarify requirements, and eliminate ambiguity. | [`align/SKILL.md`](align/SKILL.md) |
+| `seedance-prompt-en` | Write effective prompts for Jimeng Seedance 2.0 multimodal AI video generation. | [`seedance-prompt-en/SKILL.md`](seedance-prompt-en/SKILL.md) |
 
 
 ## Repository Structure
@@ -62,6 +63,8 @@ These skills turn repeated working styles into reusable instructions.
 ├── jamming/
 │   └── SKILL.md
 ├── plan/
+│   └── SKILL.md
+├── seedance-prompt-en/
 │   └── SKILL.md
 ├── senior-engineer-brainstorm/
 │   └── SKILL.md
