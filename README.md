@@ -38,6 +38,7 @@ These skills turn repeated working styles into reusable instructions.
 | `terminal` | Executes user-provided shell commands as-is and returns raw output without commentary. | [`terminal/SKILL.md`](terminal/SKILL.md) |
 | `align` | Interactive interview mode to resolve design decisions, clarify requirements, and eliminate ambiguity. | [`align/SKILL.md`](align/SKILL.md) |
 | `seedance-prompt-en` | Write effective prompts for Jimeng Seedance 2.0 multimodal AI video generation. | [`seedance-prompt-en/SKILL.md`](seedance-prompt-en/SKILL.md) |
+| `reddit-post-builder` | Turn real work the user has actually done into a Reddit post for r/ClaudeCode, r/ClaudeAI, r/codex, r/ChatGPTCoding, or r/cursor. | [`reddit-post-builder/SKILL.md`](reddit-post-builder/SKILL.md) |
 
 
 ## Repository Structure
@@ -64,6 +65,13 @@ These skills turn repeated working styles into reusable instructions.
 │   └── SKILL.md
 ├── plan/
 │   └── SKILL.md
+├── reddit-post-builder/
+│   ├── SKILL.md
+│   └── references/
+│       ├── formats.md
+│       ├── sub-cheatsheet.md
+│       ├── titles.md
+│       └── voice.md
 ├── seedance-prompt-en/
 │   └── SKILL.md
 ├── senior-engineer-brainstorm/
