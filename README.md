@@ -39,6 +39,7 @@ These skills turn repeated working styles into reusable instructions.
 | `align` | Interactive interview mode to resolve design decisions, clarify requirements, and eliminate ambiguity. | [`align/SKILL.md`](align/SKILL.md) |
 | `seedance-prompt-en` | Write effective prompts for Jimeng Seedance 2.0 multimodal AI video generation. | [`seedance-prompt-en/SKILL.md`](seedance-prompt-en/SKILL.md) |
 | `reddit-post-builder` | Turn real work the user has actually done into a Reddit post for r/ClaudeCode, r/ClaudeAI, r/codex, r/ChatGPTCoding, or r/cursor. | [`reddit-post-builder/SKILL.md`](reddit-post-builder/SKILL.md) |
+| `log-papercuts` | Proactively log small friction points, flaky commands, failed tool calls, or setup gotchas to `PAPERCUTS.md` using `yarn papercut`. | [`log-papercuts/SKILL.md`](log-papercuts/SKILL.md) |
 
 
 ## Repository Structure
@@ -62,6 +63,8 @@ These skills turn repeated working styles into reusable instructions.
 │   ├── SKILL.md
 │   └── references/
 ├── jamming/
+│   └── SKILL.md
+├── log-papercuts/
 │   └── SKILL.md
 ├── plan/
 │   └── SKILL.md
