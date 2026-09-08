@@ -41,6 +41,7 @@ These skills turn repeated working styles into reusable instructions.
 | `reddit-post-builder` | Turn real work the user has actually done into a Reddit post for r/ClaudeCode, r/ClaudeAI, r/codex, r/ChatGPTCoding, or r/cursor. | [`reddit-post-builder/SKILL.md`](reddit-post-builder/SKILL.md) |
 | `log-papercuts` | Proactively log small friction points, flaky commands, failed tool calls, or setup gotchas to `PAPERCUTS.md` using `yarn papercut`. | [`log-papercuts/SKILL.md`](log-papercuts/SKILL.md) |
 | `blueprint` | Full project scoping — combines codebase survey, architecture design, UI simplicity, and requirement interrogation before any code is written. | [`blueprint/SKILL.md`](blueprint/SKILL.md) |
+| `wdyt` | Give a real, opinionated verdict on an idea, feature, or approach — accurate vs. best, what's missing, steelman opposition, and brief evidence. | [`wdyt/SKILL.md`](wdyt/SKILL.md) |
 
 
 ## Repository Structure
@@ -92,6 +93,8 @@ These skills turn repeated working styles into reusable instructions.
 │   ├── SKILL.md
 │   └── run_fusion.sh
 ├── terminal/
+│   └── SKILL.md
+├── wdyt/
 │   └── SKILL.md
 └── supermemory-fetch.md
 ```
