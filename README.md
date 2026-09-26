@@ -42,6 +42,7 @@ These skills turn repeated working styles into reusable instructions.
 | `log-papercuts` | Proactively log small friction points, flaky commands, failed tool calls, or setup gotchas to `PAPERCUTS.md` using `yarn papercut`. | [`log-papercuts/SKILL.md`](log-papercuts/SKILL.md) |
 | `blueprint` | Full project scoping — combines codebase survey, architecture design, UI simplicity, and requirement interrogation before any code is written. | [`blueprint/SKILL.md`](blueprint/SKILL.md) |
 | `wdyt` | Give a real, opinionated verdict on an idea, feature, or approach — accurate vs. best, what's missing, steelman opposition, and brief evidence. | [`wdyt/SKILL.md`](wdyt/SKILL.md) |
+| `ai-paper-reader` | In-depth analysis of AI papers, generating publish-ready professional reading notes with formulas, architecture, and Q&A. | [`ai-paper-reader/SKILL.md`](ai-paper-reader/SKILL.md) |
 
 
 ## Repository Structure
@@ -49,6 +50,10 @@ These skills turn repeated working styles into reusable instructions.
 ```text
 .
 ├── README.md
+├── ai-paper-reader/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── extract_figures.py
 ├── align/
 │   └── SKILL.md
 ├── ask/
