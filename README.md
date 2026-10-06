@@ -43,6 +43,7 @@ These skills turn repeated working styles into reusable instructions.
 | `blueprint` | Full project scoping — combines codebase survey, architecture design, UI simplicity, and requirement interrogation before any code is written. | [`blueprint/SKILL.md`](blueprint/SKILL.md) |
 | `wdyt` | Give a real, opinionated verdict on an idea, feature, or approach — accurate vs. best, what's missing, steelman opposition, and brief evidence. | [`wdyt/SKILL.md`](wdyt/SKILL.md) |
 | `ai-paper-reader` | In-depth analysis of AI papers, generating publish-ready professional reading notes with formulas, architecture, and Q&A. | [`ai-paper-reader/SKILL.md`](ai-paper-reader/SKILL.md) |
+| `simple-writing` | Write in Simplified Technical English (ASD-STE100). Short sentences, approved words, active voice, no ambiguity. | [`simple-writing/SKILL.md`](simple-writing/SKILL.md) |
 
 
 ## Repository Structure
@@ -100,6 +101,8 @@ These skills turn repeated working styles into reusable instructions.
 ├── terminal/
 │   └── SKILL.md
 ├── wdyt/
+│   └── SKILL.md
+├── simple-writing/
 │   └── SKILL.md
 └── supermemory-fetch.md
 ```
