@@ -3,7 +3,7 @@ name: codex-cli
 description: >
   Delegate tasks to the locally installed Codex CLI (`codex exec`).
   Supports reasoning tiers (low to ultra), native image generation,
-  vision input (-i), and sandboxed execution.
+  vision input (-i), structured JSON output, and sandboxed execution.
 ---
 
 # Codex CLI Delegation
@@ -23,6 +23,19 @@ Delegate execution to OpenAI Codex CLI (`codex exec`). Non-interactive only.
 ### Plain Query / Code Gen (Clean Output to File)
 ```bash
 codex exec "PROMPT" --skip-git-repo-check --ephemeral --color never -s read-only -o output.txt
+```
+
+### Structured JSON Output (Strict Schema)
+Outputs clean JSON directly to stdout (metadata headers route to stderr).
+*Note: OpenAI Strict Outputs require `"additionalProperties": false` on objects.*
+```bash
+codex exec "PROMPT" --output-schema schema.json --skip-git-repo-check --ephemeral -s read-only
+```
+
+### Parse JSON Output Inline
+```bash
+codex exec "PROMPT" --output-schema schema.json --skip-git-repo-check --ephemeral -s read-only \
+  | python3 -c "import sys,json; print(json.load(sys.stdin)['key'])"
 ```
 
 ### Apply Edits Directly to Project
@@ -47,31 +60,8 @@ codex exec "Review this UI screenshot and implement the HTML/CSS" \
 cat file.py | codex exec "Review this code" --skip-git-repo-check --ephemeral -s read-only -
 ```
 
-### Structured JSON Output (Strict Schema)
-```bash
-codex exec "PROMPT" --output-schema schema.json --skip-git-repo-check --ephemeral --color never -s read-only -o output.json
-```
-
-### Python Programmatic Extraction (e.g. data generation scripts)
-```python
-import subprocess, json, tempfile
-
-with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
-    cmd = [
-        "codex", "exec",
-        "--skip-git-repo-check", "--ephemeral", "--color", "never",
-        "-s", "read-only",
-        "-o", tmp.name,
-        prompt
-    ]
-    subprocess.run(cmd, check=True)
-    raw = open(tmp.name).read()
-    start, end = raw.find('{'), raw.rfind('}')
-    data = json.loads(raw[start:end+1])
-```
-
 ## 3. Rules & Handling
 - **Always include:** `--skip-git-repo-check --ephemeral` for clean, isolated execution.
 - **Sandboxing:** Default to `-s read-only`. Only use `-s workspace-write` when file edits or image savings are explicitly needed.
 - **Image Destination:** Always specify the full target file path in the prompt (e.g. `"save it as ./assets/logo.png"`).
-- **Clean output:** Use `-o <file>` when you need the response text without terminal metadata.
+- **Clean output:** Use `-o <file>` or `--output-schema` when you need response text/data without terminal metadata.
