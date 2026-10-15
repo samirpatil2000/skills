@@ -44,7 +44,7 @@ These skills turn repeated working styles into reusable instructions.
 | `wdyt` | Give a real, opinionated verdict on an idea, feature, or approach — accurate vs. best, what's missing, steelman opposition, and brief evidence. | [`wdyt/SKILL.md`](wdyt/SKILL.md) |
 | `ai-paper-reader` | In-depth analysis of AI papers, generating publish-ready professional reading notes with formulas, architecture, and Q&A. | [`ai-paper-reader/SKILL.md`](ai-paper-reader/SKILL.md) |
 | `simple-writing` | Write in Simplified Technical English (ASD-STE100). Short sentences, approved words, active voice, no ambiguity. | [`simple-writing/SKILL.md`](simple-writing/SKILL.md) |
-| `check` | Effort-estimation gate — reads the codebase, scopes the work, and reports effort (Low / Medium / High / Extreme) before executing. | [`check/SKILL.md`](check/SKILL.md) |
+| `claude-cli` | Delegate tasks to the locally installed Claude CLI (Claude Code) with verified recipes for non-interactive execution. | [`claude-cli/SKILL.md`](claude-cli/SKILL.md) |
 
 
 ## Repository Structure
@@ -105,7 +105,7 @@ These skills turn repeated working styles into reusable instructions.
 │   └── SKILL.md
 ├── simple-writing/
 │   └── SKILL.md
-├── check/
+├── claude-cli/
 │   └── SKILL.md
 └── supermemory-fetch.md
 ```
