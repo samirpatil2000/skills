@@ -45,6 +45,7 @@ These skills turn repeated working styles into reusable instructions.
 | `ai-paper-reader` | In-depth analysis of AI papers, generating publish-ready professional reading notes with formulas, architecture, and Q&A. | [`ai-paper-reader/SKILL.md`](ai-paper-reader/SKILL.md) |
 | `simple-writing` | Write in Simplified Technical English (ASD-STE100). Short sentences, approved words, active voice, no ambiguity. | [`simple-writing/SKILL.md`](simple-writing/SKILL.md) |
 | `claude-cli` | Delegate tasks to the locally installed Claude Code CLI with automated effort tiering (low to max) and Ultracode multi-agent workflows. | [`claude-cli/SKILL.md`](claude-cli/SKILL.md) |
+| `codex-cli` | Delegate tasks to the locally installed OpenAI Codex CLI with reasoning tiers (low to ultra), native image generation, and vision support. | [`codex-cli/SKILL.md`](codex-cli/SKILL.md) |
 
 
 ## Repository Structure
@@ -106,6 +107,8 @@ These skills turn repeated working styles into reusable instructions.
 ├── simple-writing/
 │   └── SKILL.md
 ├── claude-cli/
+│   └── SKILL.md
+├── codex-cli/
 │   └── SKILL.md
 └── supermemory-fetch.md
 ```
