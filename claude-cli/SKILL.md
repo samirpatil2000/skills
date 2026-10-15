@@ -15,17 +15,16 @@ Run tasks in Claude Code CLI (`claude -p`) from this agent. Non-interactive only
 claude -p "PROMPT" \
   --model MODEL \
   --effort EFFORT \
-  --output-format FORMAT \
-  --max-budget-usd BUDGET
+  --output-format FORMAT
 ```
 
 ## Model × Effort Selection
 
-| Task | Model | Effort | Budget |
-|---|---|---|---|
-| Quick lookup, formatting | `haiku` | `low` | 0.05 |
-| Code gen, analysis, review | `sonnet` | `high` | 0.50 |
-| Deep reasoning, architecture | `opus` | `max` | 2.00 |
+| Task | Model | Effort |
+|---|---|---|
+| Quick lookup, formatting | `haiku` | `low` |
+| Code gen, analysis, review | `sonnet` | `high` |
+| Deep reasoning, architecture | `opus` | `max` |
 
 ## Recipes
 
@@ -61,16 +60,15 @@ claude -p "PROMPT" --system-prompt "You are a JSON API." --output-format text
 
 ## Safety Rules
 - Default to `--restricted` unless shell access is explicitly needed.
-- Always set `--max-budget-usd`.
 - Never pass secrets in `--system-prompt` (visible in `ps`).
 - Use `--permission-mode manual` for any write operations.
 
 ## Output Handling
 - `--output-format text` → plain result on stdout.
-- `--output-format json` → full JSON with `.result` field, `.usage`, `.total_cost_usd`.
+- `--output-format json` → full JSON with `.result` field, `.usage`.
 - Parse JSON: `claude -p "..." --output-format json | python3 -c "import sys,json; print(json.load(sys.stdin)['result'])"`
 
 ## Error Handling
 - Non-zero exit code = failure. Check stderr.
 - Auth expired → run `claude auth login`.
-- Timeout → add `--max-budget-usd` to force early stop.
+- Rate / session limits reached → wait for the next rolling window reset.
