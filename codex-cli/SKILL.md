@@ -47,6 +47,29 @@ codex exec "Review this UI screenshot and implement the HTML/CSS" \
 cat file.py | codex exec "Review this code" --skip-git-repo-check --ephemeral -s read-only -
 ```
 
+### Structured JSON Output (Strict Schema)
+```bash
+codex exec "PROMPT" --output-schema schema.json --skip-git-repo-check --ephemeral --color never -s read-only -o output.json
+```
+
+### Python Programmatic Extraction (e.g. data generation scripts)
+```python
+import subprocess, json, tempfile
+
+with tempfile.NamedTemporaryFile(suffix=".json") as tmp:
+    cmd = [
+        "codex", "exec",
+        "--skip-git-repo-check", "--ephemeral", "--color", "never",
+        "-s", "read-only",
+        "-o", tmp.name,
+        prompt
+    ]
+    subprocess.run(cmd, check=True)
+    raw = open(tmp.name).read()
+    start, end = raw.find('{'), raw.rfind('}')
+    data = json.loads(raw[start:end+1])
+```
+
 ## 3. Rules & Handling
 - **Always include:** `--skip-git-repo-check --ephemeral` for clean, isolated execution.
 - **Sandboxing:** Default to `-s read-only`. Only use `-s workspace-write` when file edits or image savings are explicitly needed.
