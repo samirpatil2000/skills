@@ -1,12 +1,34 @@
 #!/usr/bin/env bash
-# slack-notify.sh - Send formatted Slack notification via incoming webhook
+# slack-notify.sh - Send clean, human-readable Slack alert (no attachment boxes/bars)
 set -euo pipefail
 
-TITLE="${1:?usage: slack-notify \"title\" [\"description\"] [\"color\"]}"
-DESC="${2:-}"
-COLOR="${3:-#36a64f}"
+TITLE="${1:?usage: slack-notify \"title\" \"summary\" [\"details\"] [\"status\"]}"
+SUMMARY="${2:-}"
+DETAILS="${3:-}"
+STATUS="${4:-success}"
 
-# Resolve webhook URL (env var -> ~/.slack_webhook_url)
+ICON="✅"
+case "$STATUS" in
+  error|fail|failed) ICON="❌" ;;
+  warn|warning)      ICON="⚠️" ;;
+  info)              ICON="ℹ️" ;;
+esac
+
+# Interpret any literal \n into real linebreaks
+REAL_SUMMARY="$(printf '%b' "$SUMMARY")"
+REAL_DETAILS="$(printf '%b' "$DETAILS")"
+
+MSG="${ICON} *${TITLE}*"
+if [[ -n "$REAL_SUMMARY" ]]; then
+  MSG="${MSG}
+${REAL_SUMMARY}"
+fi
+if [[ -n "$REAL_DETAILS" ]]; then
+  MSG="${MSG}
+
+${REAL_DETAILS}"
+fi
+
 WEBHOOK_URL="${SLACK_WEBHOOK_URL:-}"
 if [[ -z "$WEBHOOK_URL" && -f "$HOME/.slack_webhook_url" ]]; then
   WEBHOOK_URL="$(tr -d ' \r\n' < "$HOME/.slack_webhook_url")"
@@ -17,12 +39,5 @@ if [[ -z "$WEBHOOK_URL" ]]; then
   exit 1
 fi
 
-jq -n \
-  --arg title "$TITLE" \
-  --arg desc "$DESC" \
-  --arg color "$COLOR" \
-  '{attachments: [{color: $color, title: $title, text: $desc, mrkdwn_in: ["text", "title"]}]}' \
-| curl -s -X POST -H 'Content-type: application/json' \
-    -d @- \
-    "$WEBHOOK_URL"
-echo ""
+jq -n --arg text "$MSG" '{text: $text}' \
+| curl -s -X POST -H 'Content-type: application/json' -d @- "$WEBHOOK_URL" > /dev/null
