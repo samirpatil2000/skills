@@ -46,6 +46,7 @@ These skills turn repeated working styles into reusable instructions.
 | `simple-writing` | Write in Simplified Technical English (ASD-STE100). Short sentences, approved words, active voice, no ambiguity. | [`simple-writing/SKILL.md`](simple-writing/SKILL.md) |
 | `claude-cli` | Delegate tasks to the locally installed Claude Code CLI with automated effort tiering (low to max) and Ultracode multi-agent workflows. | [`claude-cli/SKILL.md`](claude-cli/SKILL.md) |
 | `codex-cli` | Delegate tasks to the locally installed OpenAI Codex CLI with reasoning tiers (low to ultra), native image generation, and vision support. | [`codex-cli/SKILL.md`](codex-cli/SKILL.md) |
+| `execute-process` | Action mode with process watchdog and timeout guards to prevent silent hangs in AI CLIs and long-running scripts. | [`execute-process/SKILL.md`](execute-process/SKILL.md) |
 
 
 ## Repository Structure
@@ -110,6 +111,10 @@ These skills turn repeated working styles into reusable instructions.
 │   └── SKILL.md
 ├── codex-cli/
 │   └── SKILL.md
+├── execute-process/
+│   ├── SKILL.md
+│   └── scripts/
+│       └── run_guarded.sh
 └── supermemory-fetch.md
 ```
 
