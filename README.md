@@ -48,6 +48,7 @@ These skills turn repeated working styles into reusable instructions.
 | `codex-cli` | Delegate tasks to the locally installed OpenAI Codex CLI with reasoning tiers (low to ultra), native image generation, and vision support. | [`codex-cli/SKILL.md`](codex-cli/SKILL.md) |
 | `execute-process` | Action mode with process watchdog and timeout guards to prevent silent hangs in AI CLIs and long-running scripts. | [`execute-process/SKILL.md`](execute-process/SKILL.md) |
 | `slack-notify` | Send structured, color-coded notifications and alerts to Slack channels via incoming webhook. | [`slack-notify/SKILL.md`](slack-notify/SKILL.md) |
+| `sleep-on-done` | Put macOS to sleep once a task or workflow completes using `pmset sleepnow`. | [`sleep-on-done/SKILL.md`](sleep-on-done/SKILL.md) |
 
 
 ## Repository Structure
@@ -120,6 +121,8 @@ These skills turn repeated working styles into reusable instructions.
 │   ├── SKILL.md
 │   └── scripts/
 │       └── slack-notify.sh
+├── sleep-on-done/
+│   └── SKILL.md
 └── supermemory-fetch.md
 ```
 
