@@ -24,6 +24,10 @@ Delegate execution to OpenAI Codex CLI (`codex exec`). Non-interactive only.
 ```bash
 codex exec "PROMPT" --skip-git-repo-check --ephemeral --color never -s read-only -o output.txt
 ```
+For deep/ultra reasoning runs or background logging, pipe through `tee` to avoid block-buffering:
+```bash
+codex exec "PROMPT" -c model_reasoning_effort="ultra" --skip-git-repo-check --ephemeral --color never -s read-only | tee output.txt
+```
 
 ### Structured JSON Output (Strict Schema)
 Outputs clean JSON directly to stdout (metadata headers route to stderr).
@@ -65,3 +69,4 @@ cat file.py | codex exec "Review this code" --skip-git-repo-check --ephemeral -s
 - **Sandboxing:** Default to `-s read-only`. Only use `-s workspace-write` when file edits or image savings are explicitly needed.
 - **Image Destination:** Always specify the full target file path in the prompt (e.g. `"save it as ./assets/logo.png"`).
 - **Clean output:** Use `-o <file>` or `--output-schema` when you need response text/data without terminal metadata.
+- **Unbuffered logging:** When capturing output in background tasks or deep reasoning runs (`ultra`), avoid raw redirection `> output.txt` which block-buffers stdout until exit. Use `| tee output.txt` (or `-o <file>`) so logs update incrementally in real time and do not trip inactivity watchdogs.

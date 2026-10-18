@@ -50,8 +50,11 @@ fi
 mkdir -p "$(dirname "$LOG_FILE")"
 touch "$LOG_FILE"
 
-# Run command in background
-"${COMMAND[@]}" > "$LOG_FILE" 2>&1 &
+# Prevent runtime buffering in common environments (Python, Node)
+export PYTHONUNBUFFERED=1
+
+# Run command in background (pipe through tee to prevent stdout block buffering from freezing log size)
+"${COMMAND[@]}" > >(tee "$LOG_FILE" > /dev/null) 2>&1 &
 PID=$!
 
 START_TIME=$(date +%s)

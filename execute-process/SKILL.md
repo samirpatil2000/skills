@@ -65,6 +65,9 @@ scripts/run_guarded.sh --max 7200 --idle 300 --log run.log -- opencode run --mod
 
 This kills the whole process tree and exits non-zero if the command produces no output for `--idle` seconds or runs past `--max` seconds. The exit message says which limit was hit and shows the last lines of the log.
 
+> [!IMPORTANT]
+> **Subprocess Output Buffering Trap:** If a monitored command redirects with raw `> log`, POSIX/C runtimes default to 4KB–8KB block buffering instead of line buffering. An actively reasoning LLM will write 0 bytes to disk for 5–10 minutes, triggering the `--idle` watchdog prematurely. Always pipe through `tee` (`cmd 2>&1 | tee run.log`) or use unbuffered execution (`stdbuf -oL`, `PYTHONUNBUFFERED=1`).
+
 ### 4. Smoke-test the tool before the real run
 
 Before starting a long job that depends on a CLI or model, run the smallest possible call with a short timeout (30 to 60 seconds):
@@ -77,7 +80,7 @@ If this hangs or doesn't print OK, stop and fix or switch the model now. Don't d
 
 ### 5. Run long jobs in the background and actually check on them
 
-Start long jobs in the background with output going to a log file, then poll: check that the process is alive and that the log is still growing. If the log hasn't changed in several minutes, treat the job as hung, kill it, and report it. Never start a job and walk away assuming it will finish.
+Start long jobs in the background with output piped through `tee` (`cmd 2>&1 | tee job.log &`), then poll: check that the process is alive and that the log is still growing. Never use raw redirection `> job.log` for long reasoning runs, as block-buffering delays log writes until exit. If the log hasn't changed in several minutes, treat the job as hung, kill it, and report it. Never start a job and walk away assuming it will finish.
 
 ### 6. Timeouts and hangs are failures, not silence
 
@@ -91,3 +94,4 @@ When something times out or is killed by a watchdog:
 Add new entries here whenever a tool is found to hang or misbehave.
 
 - **OpenCode + DeepSeek free model hangs.** `opencode run --model opencode/deepseek-v4.1-flash-free` has hung on basic non-interactive prompts without printing anything or exiting, and needed to be killed. When using it: always close stdin, always wrap in `timeout` or `run_guarded.sh`, and run the smoke test first. If the smoke test hangs, switch to a different model rather than retrying.
+- **Subprocess Output Block-Buffering on Deep Reasoning Models.** When running `claude -p --effort max`, `codex` with ultra reasoning, or any reasoning LLM CLI redirected with `> output.txt`, the OS switches stdout from line-buffering to 4KB/8KB block-buffering. Logs stay at 0 bytes for 5–10 minutes during token generation, causing idle watchdogs to falsely mark the process as hung and kill it. Always use `| tee output.txt` or unbuffered wrappers (`stdbuf -oL`, `PYTHONUNBUFFERED=1`) so output writes to disk incrementally.

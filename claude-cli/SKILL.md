@@ -27,9 +27,10 @@ Delegate execution to Claude Code CLI (`claude -p`). Non-interactive only.
 claude -p "PROMPT" --model sonnet --effort high --output-format text
 ```
 
-### Deep Reasoning (Max Effort with Automatic Fallback)
+### Deep Reasoning (Max Effort with Automatic Fallback & Real-Time Logging)
+Always pipe through `tee` when redirecting to a file to prevent stdout block buffering:
 ```bash
-claude -p "PROMPT" --model opus --fallback-model opus-4.7,sonnet --effort max --output-format text
+claude -p "PROMPT" --model opus --fallback-model opus-4.7,sonnet --effort max --output-format text | tee output.txt
 ```
 
 ### Ultracode Multi-Agent Swarm
@@ -39,7 +40,7 @@ claude -p "ultracode: PROMPT. Spawn parallel subagents to investigate separate m
   --model opus \
   --fallback-model opus-4.7,sonnet \
   --effort max \
-  --output-format text
+  --output-format text | tee swarm.log
 ```
 
 ### Stdin Context Pipe
@@ -63,9 +64,18 @@ claude -p "PROMPT" --json-schema '{"type":"object",...}' --output-format text
 - **Default restriction:** Use `--restricted` unless shell access or file modifications are explicitly required.
 - **No budget caps:** Subscription rolling window applies.
 - **Output handling:** Text prints directly to stdout. If JSON output format is used, parse `.result`.
+- **Unbuffered logging:** When redirecting long reasoning runs (`--effort xhigh` / `max`) to a log file, do not use raw `> output.txt` (POSIX block buffering keeps the file at 0 bytes for minutes, mimicking a hang). Always pipe through `| tee output.txt` so timestamps and progress flush continuously.
 - **Rate limits:** If session limit is hit, wait for the rolling 5-hour window refresh.
 
 ## 5. Fallback, Model Downgrades & Gotchas
+
+### Subprocess Output Buffering on Long Reasoning Runs (Empty Log Gotcha)
+- **Gotcha:** Running `claude -p ... --effort max > output.txt` causes libc/POSIX to block-buffer all stdout until process exit. The task log appears completely empty (0 bytes) for 5–10 minutes, making it indistinguishable from a hung process or network freeze.
+- **Resolution:** Pipe stdout through `tee` instead of direct file redirection:
+  ```bash
+  claude -p "PROMPT" --model opus --effort max --output-format text | tee output.txt
+  ```
+  In background task runners or watchdog guards, `| tee` flushes output line-by-line, keeping the log file continuously updated and preventing premature watchdog timeouts.
 
 ### Unresponsive / Overloaded Model Downgrades
 If the primary model does not respond, hangs, or is overloaded:

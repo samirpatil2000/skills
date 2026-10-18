@@ -13,3 +13,4 @@ Act. No more planning, no more questions. Build it.
 2. Write code, edit files, run commands — immediately
 3. Install what's needed, create what's missing
 4. Test and verify before reporting done
+5. **Unbuffered logging for long runs** — When capturing stdout of long-running or reasoning commands into a file, never use raw `> output.txt` (which causes POSIX block-buffering and looks hung with 0 bytes). Always use `| tee output.txt` so incremental output is written immediately.
