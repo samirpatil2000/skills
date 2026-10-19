@@ -95,3 +95,9 @@ Add new entries here whenever a tool is found to hang or misbehave.
 
 - **OpenCode + DeepSeek free model hangs.** `opencode run --model opencode/deepseek-v4.1-flash-free` has hung on basic non-interactive prompts without printing anything or exiting, and needed to be killed. When using it: always close stdin, always wrap in `timeout` or `run_guarded.sh`, and run the smoke test first. If the smoke test hangs, switch to a different model rather than retrying.
 - **Subprocess Output Block-Buffering on Deep Reasoning Models.** When running `claude -p --effort max`, `codex` with ultra reasoning, or any reasoning LLM CLI redirected with `> output.txt`, the OS switches stdout from line-buffering to 4KB/8KB block-buffering. Logs stay at 0 bytes for 5–10 minutes during token generation, causing idle watchdogs to falsely mark the process as hung and kill it. Always use `| tee output.txt` or unbuffered wrappers (`stdbuf -oL`, `PYTHONUNBUFFERED=1`) so output writes to disk incrementally.
+- **Chrome Remote Debugging Launch on macOS (UI Changes / DevTools).** Launching Chrome via `open -a "Google Chrome" --args --remote-debugging-port=9222` fails with *"DevTools remote debugging requires a non-default data directory"* because modern Chrome prohibits remote debugging on the default user profile.
+  - **Fix:** Specify an explicit isolated user data directory:
+    ```bash
+    open -a "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug-profile
+    ```
+    Or connect directly to an existing active debug profile / DevTools port.
