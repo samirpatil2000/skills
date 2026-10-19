@@ -44,7 +44,7 @@ These skills turn repeated working styles into reusable instructions.
 | `wdyt` | Give a real, opinionated verdict on an idea, feature, or approach — accurate vs. best, what's missing, steelman opposition, and brief evidence. | [`wdyt/SKILL.md`](wdyt/SKILL.md) |
 | `ai-paper-reader` | In-depth analysis of AI papers, generating publish-ready professional reading notes with formulas, architecture, and Q&A. | [`ai-paper-reader/SKILL.md`](ai-paper-reader/SKILL.md) |
 | `simple-writing` | Write in Simplified Technical English (ASD-STE100). Short sentences, approved words, active voice, no ambiguity. | [`simple-writing/SKILL.md`](simple-writing/SKILL.md) |
-| `claude-cli` | Delegate tasks to the locally installed Claude Code CLI with automated effort tiering (low to max) and Ultracode multi-agent workflows. | [`claude-cli/SKILL.md`](claude-cli/SKILL.md) |
+| `claude-cli` | Delegate tasks to the locally installed Claude Code CLI with automated model selection (Fable 5/5.1, Opus, Sonnet, Haiku), effort tiering (low to max), and Ultracode multi-agent workflows. | [`claude-cli/SKILL.md`](claude-cli/SKILL.md) |
 | `codex-cli` | Delegate tasks to the locally installed OpenAI Codex CLI with reasoning tiers (low to ultra), native image generation, and vision support. | [`codex-cli/SKILL.md`](codex-cli/SKILL.md) |
 | `execute-process` | Action mode with process watchdog and timeout guards to prevent silent hangs in AI CLIs and long-running scripts. | [`execute-process/SKILL.md`](execute-process/SKILL.md) |
 | `slack-notify` | Send structured, color-coded notifications and alerts to Slack channels via incoming webhook. | [`slack-notify/SKILL.md`](slack-notify/SKILL.md) |
