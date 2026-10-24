@@ -50,7 +50,7 @@ These skills turn repeated working styles into reusable instructions.
 | `slack-notify` | Send structured, color-coded notifications and alerts to Slack channels via incoming webhook. | [`slack-notify/SKILL.md`](slack-notify/SKILL.md) |
 | `sleep-on-done` | Put macOS to sleep once a task or workflow completes using `pmset sleepnow`. | [`sleep-on-done/SKILL.md`](sleep-on-done/SKILL.md) |
 | `quick-decision` | Delegates closed-ended decisions to Levanto Sage (~150ms): command safety gates, tool routing, triage, and visual pass/fail checks for Blender / three.js renders. | [`quick-decision/SKILL.md`](quick-decision/SKILL.md) |
-| `opencode-cli` | Delegate tasks to OpenCode Zen API and CLI with multi-protocol auto-routing across DeepSeek, Kimi K3, Gemini 4 Argon, and Claude Fable. | [`opencode-cli/SKILL.md`](opencode-cli/SKILL.md) |
+| `opencode-cli` | Delegate tasks to OpenCode Zen API and CLI with multi-protocol auto-routing across DeepSeek, Kimi K3, Gemini 4 Argon, and Qwen. | [`opencode-cli/SKILL.md`](opencode-cli/SKILL.md) |
 
 
 ## Repository Structure
