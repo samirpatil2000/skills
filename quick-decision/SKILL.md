@@ -1,11 +1,21 @@
 ---
 name: quick-decision
-description: Ultra-fast (<150ms) semantic decision engine powered by Levanto Sage. Use for binary checks (command safety, proceed vs escalate), multi-option tool routing, classification, and confidence-gated agent workflows without heavyweight LLM calls.
+description: Delegates closed-ended decisions to the Levanto Sage decision model (~150ms) instead of deciding yourself. Use for command safety gates, tool routing, proceed-vs-escalate, classification, and visual pass/fail checks of Blender or three.js renders and screenshots (floating objects, black frames, missing textures, clipping, framing).
 ---
 
 # Quick Decision (Levanto Sage)
 
 High-speed, calibrated semantic decision layer for agents. Replaces slow LLM calls with sub-150ms structured evaluations.
+
+## 0. Operating Mode: Sage Decides, You Execute
+
+While this skill is active, you do NOT make closed-ended decisions yourself. Sage makes them; you act on its answer.
+
+1. **Before every decision point** (is this command safe? which tool? is this render correct? proceed or ask?), call `decision` first. Do not answer it in your head and skip the call.
+2. **Follow Sage's answer** using the Confidence Policy (Section 2) and exit codes. Exit 0 → act on the answer. Exit 10 → halt and ask the user. Exit 11 or 12 → escalate to the user with the options.
+3. **Report each delegated decision** in one line: `Sage: <question> → <answer> (<confidence>)`.
+4. **You still do the work**: writing code, bpy scripts, three.js changes, and running tools. Sage only answers the closed question.
+5. **Blender / three.js verification loop**: after each change, save a render or screenshot to a PNG (Blender: `bpy.ops.render.render(write_still=True)` or a viewport screenshot; three.js: `renderer.domElement.toDataURL()` or a browser screenshot saved to disk), then run one `decision check-image` with every check that matters. Fix any failed check and repeat. Use `SAGE_TIMEOUT=10` for full-size renders.
 
 ## 1. When to Use vs When NOT to Use
 
@@ -15,6 +25,8 @@ High-speed, calibrated semantic decision layer for agents. Replaces slow LLM cal
 | **Tool selection** (`search_web` vs `view_file`) | Executing the tool or bash command |
 | **Task triage** (bug vs feature vs question) | Parsing syntax or regex matching |
 | **Escalation gate** (proceed autonomously vs ask user) | Deterministic state logic |
+| **Render / screenshot pass-fail** (floating, black frame, magenta texture, clipped, cut off) | Aesthetic judgement, exact proportions, data not visible in pixels (poly count, file size) |
+| **Destructive bpy / three.js code** (deletes objects, overwrites the .blend) | Reading scene data — use `get_scene_info` |
 
 ## 2. Confidence Policy
 
@@ -50,10 +62,20 @@ decision decide "Customer message: I want to cancel my account immediately." \
 ```
 
 ### Visual / Image Decisions (Screenshots & Media)
-Evaluates images (.png, .jpg, .webp <= 4 MiB) with optional accompanying text:
+Asks one or more yes/no questions about one image (.png, .jpg, .webp <= 4 MiB). Several questions go out in a single `/decide/batch` call, so the image is uploaded once. Prints one `YES|NO|UNSURE|ERROR <tab> P(yes) <tab> question` line per question:
 ```bash
-decision check-image screenshot.png "Does this UI screen display a critical payment error modal?"
+decision check-image render.png "Is any object floating above the ground?" \
+  "Is the render completely black?" "Does any object show magenta missing-texture color?"
 ```
+Ask only what is visible in the pixels; it answers confidently even when the image can't tell (e.g. polygon counts).
+
+### Exit Codes (fail closed)
+| Code | Meaning | Agent action |
+|---|---|---|
+| 0 | Answered (`check-safety`: SAFE) | Proceed per confidence policy |
+| 10 | `check-safety`: UNSAFE | Halt, ask the user |
+| 11 | Model abstained (`answer`/`chosen` is null) | Escalate; `route-tool` prints the option ranking |
+| 12 | API error, HTTP error or timeout (`SAGE_TIMEOUT`, default 3s) | Escalate |
 
 ### Direct Raw curl (Zero CLI Dependencies)
 ```bash
@@ -66,6 +88,8 @@ curl -s -X POST "https://sage.levanto.ai/decide" \
     "question": {"id": "q1", "kind": "yesno", "instructions": "Is this command destructive?"}
   }'
 ```
+## Key 
+SAGE_API_KEY=lv_live_52b4e6f6f8b659f22d2ce7b0e4e5d27eb3de9d8dc2810516
 
 ## 4. Principles
 - **Fail-Safe Fallback:** If `SAGE_API_KEY` is missing or the endpoint times out (>3.0s), default to safety: escalate ambiguous operations to the user.

@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 # decision.sh - Pure bash + curl semantic decision helper powered by Levanto Sage
 # Zero hard dependencies: uses curl. jq is optional (graceful fallback).
+#
+# Fails closed: errors, timeouts and model abstentions never report SAFE.
+# Exit codes:
+#   0   answered (check-safety: SAFE)
+#   2   usage / configuration error
+#   10  check-safety: UNSAFE
+#   11  model abstained or unsure -> escalate to the user
+#   12  API error, HTTP error or timeout -> escalate to the user
 set -euo pipefail
 
 SAGE_BASE_URL="${SAGE_BASE_URL:-https://sage.levanto.ai}"
+SAGE_TIMEOUT="${SAGE_TIMEOUT:-3}"
 
 # Resolve API key: env var -> ~/.sage_api_key -> ~/.env
 API_KEY="${SAGE_API_KEY:-}"
@@ -11,8 +20,11 @@ if [[ -z "$API_KEY" && -f "$HOME/.sage_api_key" ]]; then
   API_KEY="$(tr -d ' \r\n' < "$HOME/.sage_api_key")"
 fi
 if [[ -z "$API_KEY" && -f "$HOME/.env" ]]; then
-  API_KEY="$(grep -E '^SAGE_API_KEY=' "$HOME/.env" | head -n1 | cut -d'=' -f2- | tr -d ' "\r\n')"
+  API_KEY="$(grep -E '^SAGE_API_KEY=' "$HOME/.env" | head -n1 | cut -d'=' -f2- | tr -d ' "\r\n' || true)"
 fi
+
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/decision.XXXXXX")"
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 check_api_key() {
   if [[ -z "$API_KEY" ]]; then
@@ -43,37 +55,69 @@ json_quote() {
   fi
 }
 
+# Prints the value at a dotted path, or "" when missing or null.
 json_extract() {
   local json="$1"
   local field="$2"
+  local out=""
   if command -v jq >/dev/null 2>&1; then
-    echo "$json" | jq -r "$field" 2>/dev/null || echo ""
+    out="$(echo "$json" | jq -r "$field // empty" 2>/dev/null || true)"
   elif command -v python3 >/dev/null 2>&1; then
-    python3 -c '
+    out="$(python3 -c '
 import sys, json
 try:
     data = json.loads(sys.argv[1])
-    path = sys.argv[2].strip(".").split(".")
-    for p in path:
-        if p and p != "//":
+    for p in sys.argv[2].strip(".").split("."):
+        if p:
             data = data[p]
-    print(data if data is not None else "")
+    print("" if data is None else data)
 except Exception:
     print("")
-' "$json" "$field" 2>/dev/null
+' "$json" "$field" 2>/dev/null || true)"
   else
     local key="${field##*.}"
-    key="${key%% *}"
-    echo "$json" | grep -o "\"$key\"[[:space:]]*:[[:space:]]*[^,}]*" | head -n1 | sed -e 's/.*:[[:space:]]*//' -e 's/^"//' -e 's/"$//'
+    out="$(echo "$json" | grep -o "\"$key\"[[:space:]]*:[[:space:]]*[^,}]*" | head -n1 | sed -e 's/.*:[[:space:]]*//' -e 's/^"//' -e 's/"$//' || true)"
   fi
+  [[ "$out" == "null" ]] && out=""
+  printf '%s' "$out"
 }
+
+# sage_post <path> <payload-file>: prints the response body on HTTP 200.
+# On curl failure, timeout or non-200 it prints the reason to stderr and returns 12.
+sage_post() {
+  local path="$1" payload_file="$2" body rc=0 http
+  body="$(curl -sS --max-time "$SAGE_TIMEOUT" -w '\n%{http_code}' -X POST "${SAGE_BASE_URL}${path}" \
+    -H "Authorization: Bearer ${API_KEY}" \
+    -H "Content-Type: application/json" \
+    -H "User-Agent: quick-decision/1.1" \
+    -d @"$payload_file" 2>"$TMP_DIR/curl.err")" || rc=$?
+  if (( rc != 0 )); then
+    if (( rc == 28 )); then
+      echo "Error: Sage request timed out after ${SAGE_TIMEOUT}s. Escalate to the user." >&2
+    else
+      echo "Error: Sage request failed (curl exit $rc): $(tr -d '\n' < "$TMP_DIR/curl.err"). Escalate to the user." >&2
+    fi
+    return 12
+  fi
+  http="${body##*$'\n'}"
+  body="${body%$'\n'*}"
+  if [[ "$http" != "200" ]]; then
+    local detail
+    detail="$(json_extract "$body" ".detail")"
+    echo "Error: Sage returned HTTP ${http}: ${detail:-$body}. Escalate to the user." >&2
+    return 12
+  fi
+  printf '%s' "$body"
+}
+
+percent() { awk -v p="${1:-0}" 'BEGIN { printf "%.1f", p * 100 }'; }
 
 cmd="${1:-help}"
 shift || true
 
 case "$cmd" in
   health)
-    curl -s -H "User-Agent: quick-decision/1.0" "${SAGE_BASE_URL}/ready"
+    curl -sS --max-time "$SAGE_TIMEOUT" -H "User-Agent: quick-decision/1.1" "${SAGE_BASE_URL}/ready" || exit 12
     echo ""
     ;;
 
@@ -82,32 +126,31 @@ case "$cmd" in
     command_str="${1:?usage: decision.sh check-safety \"<command>\"}"
     c_quoted="$(json_quote "$command_str")"
     i_quoted="$(json_quote "Is this shell command destructive, modifying system files, or unsafe to run without user confirmation?")"
-    payload="{\"content\": ${c_quoted}, \"question\": {\"id\": \"command_safety\", \"kind\": \"yesno\", \"instructions\": ${i_quoted}}}"
+    printf '%s' "{\"content\": ${c_quoted}, \"question\": {\"id\": \"command_safety\", \"kind\": \"yesno\", \"instructions\": ${i_quoted}}}" > "$TMP_DIR/req.json"
 
-    res="$(curl -s -X POST "${SAGE_BASE_URL}/decide" \
-      -H "Authorization: Bearer ${API_KEY}" \
-      -H "Content-Type: application/json" \
-      -H "User-Agent: quick-decision/1.0" \
-      -d "$payload")"
+    if ! res="$(sage_post /decide "$TMP_DIR/req.json")"; then
+      echo -e "\033[93m[ESCALATE]\033[0m Verdict: UNKNOWN (API unavailable) - ask the user before running."
+      exit 12
+    fi
 
     answer="$(json_extract "$res" ".result.answer")"
-    [[ -z "$answer" ]] && answer="$(json_extract "$res" "answer")"
     raw_p="$(json_extract "$res" ".result.probability")"
-    [[ -z "$raw_p" ]] && raw_p="$(json_extract "$res" "probability")"
-    [[ -z "$raw_p" ]] && raw_p="0"
     latency="$(json_extract "$res" ".meta.latency_ms")"
-    [[ -z "$latency" ]] && latency="$(json_extract "$res" "latency_ms")"
-    [[ -z "$latency" ]] && latency="0"
 
-    if [[ "$answer" == "yes" ]]; then
-      conf="$(awk "BEGIN { printf \"%.1f\", $raw_p * 100 }")"
-      echo -e "\033[91m[UNSAFE]\033[0m Verdict: UNSAFE / DESTRUCTIVE (Confidence: ${conf}%, Latency: ${latency}ms)"
-      exit 10
-    else
-      conf="$(awk "BEGIN { printf \"%.1f\", (1.0 - $raw_p) * 100 }")"
-      echo -e "\033[92m[SAFE]\033[0m Verdict: SAFE (Confidence: ${conf}%, Latency: ${latency}ms)"
-      exit 0
-    fi
+    case "$answer" in
+      yes)
+        echo -e "\033[91m[UNSAFE]\033[0m Verdict: UNSAFE / DESTRUCTIVE (Confidence: $(percent "$raw_p")%, Latency: ${latency:-?}ms)"
+        exit 10
+        ;;
+      no)
+        echo -e "\033[92m[SAFE]\033[0m Verdict: SAFE (Confidence: $(percent "$(awk -v p="${raw_p:-0}" 'BEGIN { print 1 - p }')")%, Latency: ${latency:-?}ms)"
+        exit 0
+        ;;
+      *)
+        echo -e "\033[93m[ESCALATE]\033[0m Verdict: UNSURE (P(unsafe)=${raw_p:-?}, Latency: ${latency:-?}ms) - ask the user before running."
+        exit 11
+        ;;
+    esac
     ;;
 
   route-tool)
@@ -128,33 +171,47 @@ case "$cmd" in
     joined_options="$(IFS=,; echo "${options_arr[*]}")"
 
     t_quoted="$(json_quote "$task_desc")"
-    payload="{\"content\": ${t_quoted}, \"question\": {\"id\": \"tool_selection\", \"kind\": \"choice\", \"instructions\": \"Which tool is best suited for this task?\", \"options\": [${joined_options}]}}"
+    printf '%s' "{\"content\": ${t_quoted}, \"question\": {\"id\": \"tool_selection\", \"kind\": \"choice\", \"instructions\": \"Which tool is best suited for this task?\", \"options\": [${joined_options}]}}" > "$TMP_DIR/req.json"
 
-    res="$(curl -s -X POST "${SAGE_BASE_URL}/decide" \
-      -H "Authorization: Bearer ${API_KEY}" \
-      -H "Content-Type: application/json" \
-      -H "User-Agent: quick-decision/1.0" \
-      -d "$payload")"
+    res="$(sage_post /decide "$TMP_DIR/req.json")" || exit 12
 
     chosen="$(json_extract "$res" ".result.chosen")"
-    [[ -z "$chosen" ]] && chosen="$(json_extract "$res" "chosen")"
     raw_p="$(json_extract "$res" ".result.probability")"
-    [[ -z "$raw_p" ]] && raw_p="$(json_extract "$res" "probability")"
-    [[ -z "$raw_p" ]] && raw_p="0"
     latency="$(json_extract "$res" ".meta.latency_ms")"
-    [[ -z "$latency" ]] && latency="$(json_extract "$res" "latency_ms")"
-    [[ -z "$latency" ]] && latency="0"
-    conf="$(awk "BEGIN { printf \"%.1f\", $raw_p * 100 }")"
 
-    echo "Chosen Tool: ${chosen} (Confidence: ${conf}%, Latency: ${latency}ms)"
+    if [[ -n "$chosen" ]]; then
+      echo "Chosen Tool: ${chosen} (Confidence: $(percent "$raw_p")%, Latency: ${latency:-?}ms)"
+      exit 0
+    fi
+
+    echo "Chosen Tool: none - model abstained (Latency: ${latency:-?}ms). Ask the user or pick from the ranking:"
+    if command -v jq >/dev/null 2>&1; then
+      echo "$res" | jq -r '.result.probabilities // [] | sort_by(-.probability) | .[] | "  \(.option)\t\(.probability * 1000 | round / 10)%"'
+    elif command -v python3 >/dev/null 2>&1; then
+      python3 -c '
+import json, sys
+probs = json.loads(sys.argv[1]).get("result", {}).get("probabilities") or []
+for p in sorted(probs, key=lambda x: -x["probability"]):
+    print("  %s\t%.1f%%" % (p["option"], p["probability"] * 100))
+' "$res"
+    fi
+    exit 11
     ;;
 
   check-image)
     check_api_key
-    image_path="${1:?usage: decision.sh check-image <path/to/image> \"<instructions>\"}"
-    instructions="${2:?usage: decision.sh check-image <path/to/image> \"<instructions>\"}"
+    image_path="${1:?usage: decision.sh check-image <path/to/image> \"<question>\" [\"<question>\" ...]}"
+    shift
+    if [[ $# -eq 0 ]]; then
+      echo "usage: decision.sh check-image <path/to/image> \"<question>\" [\"<question>\" ...]" >&2
+      exit 2
+    fi
     if [[ ! -f "$image_path" ]]; then
       echo "Error: Image file not found: $image_path" >&2
+      exit 2
+    fi
+    if ! command -v jq >/dev/null 2>&1 && ! command -v python3 >/dev/null 2>&1; then
+      echo "Error: check-image needs jq or python3 to read the response." >&2
       exit 2
     fi
 
@@ -166,30 +223,67 @@ case "$cmd" in
       exit 2
     fi
 
-    ext="${image_path##*.}"
+    ext="$(printf '%s' "${image_path##*.}" | tr '[:upper:]' '[:lower:]')"
     mime="image/png"
     case "$ext" in
       jpg|jpeg) mime="image/jpeg" ;;
       webp) mime="image/webp" ;;
     esac
 
-    b64="$(base64 < "$image_path" | tr -d '\r\n')"
-    data_uri="data:${mime};base64,${b64}"
+    # One upload, all questions in a single /decide/batch call.
+    questions_arr=()
+    n=0
+    for q in "$@"; do
+      n=$((n + 1))
+      questions_arr+=("{\"id\": \"q${n}\", \"kind\": \"yesno\", \"instructions\": $(json_quote "$q")}")
+    done
+    joined_questions="$(IFS=,; echo "${questions_arr[*]}")"
 
-    i_quoted="$(json_quote "$instructions")"
-    payload="{\"content\": {\"kind\": \"image\", \"media\": \"${data_uri}\"}, \"question\": {\"id\": \"img_q\", \"kind\": \"yesno\", \"instructions\": ${i_quoted}}}"
+    # Stream the base64 straight into the payload file so large images never hit ARG_MAX.
+    {
+      printf '{"requests": [{"content": {"kind": "image", "media": "data:%s;base64,' "$mime"
+      base64 < "$image_path" | tr -d '\r\n'
+      printf '"}, "questions": [%s]}]}' "$joined_questions"
+    } > "$TMP_DIR/req.json"
 
-    res="$(curl -s -X POST "${SAGE_BASE_URL}/decide" \
-      -H "Authorization: Bearer ${API_KEY}" \
-      -H "Content-Type: application/json" \
-      -H "User-Agent: quick-decision/1.0" \
-      -d "$payload")"
+    res="$(sage_post /decide/batch "$TMP_DIR/req.json")" || exit 12
+    latency="$(json_extract "$res" ".meta.latency_ms")"
 
+    # One line per question: VERDICT <tab> P(yes) <tab> question
+    printf '%s' "$res" > "$TMP_DIR/res.json"
     if command -v jq >/dev/null 2>&1; then
-      echo "$res" | jq -r '.result // .'
+      lines="$(jq -r '
+        (.results[0].answers // []) as $a
+        | $ARGS.positional | to_entries[]
+        | ($a[.key]) as $r
+        | if ($r == null) or ($r.ok != true) then "ERROR\t-\t\(.value)\t\($r.error // "no answer returned")"
+          elif $r.result.result.answer == null then "UNSURE\t\($r.result.result.probability // "-")\t\(.value)"
+          else "\($r.result.result.answer | ascii_upcase)\t\($r.result.result.probability)\t\(.value)"
+          end' --args "$@" < "$TMP_DIR/res.json")"
     else
-      echo "$res"
+      lines="$(python3 -c '
+import json, sys
+res = json.load(open(sys.argv[1]))
+answers = (res.get("results") or [{}])[0].get("answers") or []
+for i, q in enumerate(sys.argv[2:]):
+    r = answers[i] if i < len(answers) else None
+    if not r or not r.get("ok"):
+        print("ERROR\t-\t%s\t%s" % (q, (r or {}).get("error") or "no answer returned"))
+        continue
+    out = r["result"]["result"]
+    if out.get("answer") is None:
+        print("UNSURE\t%s\t%s" % (out.get("probability", "-"), q))
+    else:
+        print("%s\t%s\t%s" % (out["answer"].upper(), out["probability"], q))
+' "$TMP_DIR/res.json" "$@")"
     fi
+
+    echo "$lines"
+    echo "(${n} question(s), Latency: ${latency:-?}ms)"
+    # Fail closed: anything other than YES/NO lines is an error or abstention.
+    [[ -z "$lines" || $'\n'"$lines" == *$'\n'ERROR* ]] && exit 12
+    [[ $'\n'"$lines" == *$'\n'UNSURE* ]] && exit 11
+    exit 0
     ;;
 
   raw|decide)
@@ -202,28 +296,31 @@ case "$cmd" in
     i_quoted="$(json_quote "$instructions")"
     k_quoted="$(json_quote "$kind")"
 
-    payload="{\"content\": ${c_quoted}, \"question\": {\"id\": \"q\", \"kind\": ${k_quoted}, \"instructions\": ${i_quoted}}}"
+    printf '%s' "{\"content\": ${c_quoted}, \"question\": {\"id\": \"q\", \"kind\": ${k_quoted}, \"instructions\": ${i_quoted}}}" > "$TMP_DIR/req.json"
 
-    res="$(curl -s -X POST "${SAGE_BASE_URL}/decide" \
-      -H "Authorization: Bearer ${API_KEY}" \
-      -H "Content-Type: application/json" \
-      -H "User-Agent: quick-decision/1.0" \
-      -d "$payload")"
+    res="$(sage_post /decide "$TMP_DIR/req.json")" || exit 12
 
     if command -v jq >/dev/null 2>&1; then
       echo "$res" | jq -r '.result // .'
     else
       echo "$res"
     fi
+    # yesno -> answer, choice -> chosen; null means the model abstained.
+    if [[ "$kind" == "yesno" && -z "$(json_extract "$res" ".result.answer")" ]] \
+      || [[ "$kind" == "choice" && -z "$(json_extract "$res" ".result.chosen")" ]]; then
+      exit 11
+    fi
     ;;
 
   *)
     echo "Usage: decision.sh <command> [args...]"
     echo "Commands:"
-    echo "  health                               Check Sage API status"
-    echo "  check-safety \"<command>\"             Check if shell command is destructive"
-    echo "  route-tool \"<task>\" <tool1> <tool2>  Select best tool from options"
-    echo "  check-image <file> \"<instructions>\"  Evaluate an image (<= 4 MiB)"
-    echo "  decide \"<content>\" \"<instructions>\"  Run generic decision"
+    echo "  health                                         Check Sage API status"
+    echo "  check-safety \"<command>\"                       Check if shell command is destructive"
+    echo "  route-tool \"<task>\" <tool1> <tool2>            Select best tool from options"
+    echo "  check-image <file> \"<q1>\" [\"<q2>\" ...]         Ask yes/no questions about one image (<= 4 MiB)"
+    echo "  decide \"<content>\" \"<instructions>\" [kind]     Run generic decision"
+    echo "Exit codes: 0 ok/safe, 10 unsafe, 11 unsure (escalate), 12 API error/timeout (escalate)"
+    echo "Env: SAGE_TIMEOUT (seconds, default 3), SAGE_BASE_URL"
     ;;
 esac

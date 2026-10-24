@@ -49,7 +49,7 @@ These skills turn repeated working styles into reusable instructions.
 | `execute-process` | Action mode with process watchdog and timeout guards to prevent silent hangs in AI CLIs and long-running scripts. | [`execute-process/SKILL.md`](execute-process/SKILL.md) |
 | `slack-notify` | Send structured, color-coded notifications and alerts to Slack channels via incoming webhook. | [`slack-notify/SKILL.md`](slack-notify/SKILL.md) |
 | `sleep-on-done` | Put macOS to sleep once a task or workflow completes using `pmset sleepnow`. | [`sleep-on-done/SKILL.md`](sleep-on-done/SKILL.md) |
-| `quick-decision` | Ultra-fast (<150ms) semantic decision engine powered by Levanto Sage for command safety checks, tool routing, and confidence-gated triage. | [`quick-decision/SKILL.md`](quick-decision/SKILL.md) |
+| `quick-decision` | Delegates closed-ended decisions to Levanto Sage (~150ms): command safety gates, tool routing, triage, and visual pass/fail checks for Blender / three.js renders. | [`quick-decision/SKILL.md`](quick-decision/SKILL.md) |
 
 
 ## Repository Structure
