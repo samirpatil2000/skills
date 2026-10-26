@@ -56,7 +56,7 @@ claude -p "PROMPT" --json-schema '{"type":"object",...}' --output-format text
 
 - No budget caps; subscription rolling window applies. On session limit, wait for the 5-hour window refresh.
 - Text output goes to stdout; with JSON output format, parse `.result`.
-- **Unbuffered logging:** never `> output.txt` for `xhigh`/`max` runs. POSIX block buffering leaves the file at 0 bytes for 5–10 min, indistinguishable from a hang and tripping watchdog timeouts. Always `| tee output.txt` so lines flush continuously.
+- **Unbuffered logging for long runs:** When capturing stdout of long-running or reasoning commands into a file, never use raw `> output.txt` (which causes POSIX block-buffering and looks hung with 0 bytes). Always use `| tee output.txt` so incremental output is written immediately.
 
 ## Fallback & Gotchas
 
