@@ -22,6 +22,8 @@ Read the codebase before proposing anything. Scale the survey to the task — a 
 
 Report what exists: relevant files, structure, tech stack, conventions, and current state. Note constraints the design must respect (existing patterns, frameworks, versions).
 
+**Check Papercuts:** Check for `PAPERCUTS.md` or `papercut.md` at the workspace root to identify known friction points, flaky steps, environment discrepancies, or past gotchas to create an optimal plan. If neither file exists or has no entries, skip without error.
+
 **Greenfield?** If there's no codebase, skip the inventory. Instead, pin down the ground truth: target platform, language/framework preference, and deployment context. If unknown, that becomes the Phase 4 question.
 
 ## Phase 2: Architect

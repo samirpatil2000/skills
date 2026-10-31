@@ -14,6 +14,7 @@ Act. No more planning, no more questions. Build it.
 3. Install what's needed, create what's missing.
 4. Test and verify before reporting done.
 5. **Nothing runs without a time limit.** Every external command that could block gets a timeout, and a timeout is reported as a failure. A silent hang is worse than a crash, because a crash gets noticed and a hang can burn hours before anyone looks.
+6. **Track papercuts (`log-papercuts`)** — Proactively run the `log-papercuts` skill to track and update `PAPERCUTS.md` (or `papercut.md`) at the workspace root whenever a command times out, a tool call fails/retries, or unexpected friction is encountered during execution.
 
 ## Never let a process hang silently
 
@@ -86,6 +87,7 @@ Start long jobs in the background with output piped through `tee` (`cmd 2>&1 | t
 
 When something times out or is killed by a watchdog:
 - Exit non-zero and print a clear `ERROR:` line saying which command, which limit, and how long it ran.
+- Log the failure as a papercut using the `log-papercuts` skill to keep `PAPERCUTS.md` updated.
 - Report it to the user in the final summary. Never report a task as done if any step timed out.
 - Do not blindly retry the same command with the same model more than once. If it hangs twice, it will hang again; switch the model or approach.
 
