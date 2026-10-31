@@ -52,6 +52,7 @@ These skills turn repeated working styles into reusable instructions.
 | `quick-decision` | Delegates closed-ended decisions to Levanto Sage (~150ms): command safety gates, tool routing, triage, and visual pass/fail checks for Blender / three.js renders. | [`quick-decision/SKILL.md`](quick-decision/SKILL.md) |
 | `opencode-cli` | Delegate tasks to OpenCode Zen API and CLI with multi-protocol auto-routing across DeepSeek, Kimi K3, Gemini 4 Argon, and Qwen. | [`opencode-cli/SKILL.md`](opencode-cli/SKILL.md) |
 | `colab-cli` | Run code on Google Colab CPU, GPU (T4, L4, A100, H100), and TPU (v5e1, v6e1) runtimes via `colab`. | [`colab-cli/SKILL.md`](colab-cli/SKILL.md) |
+| `cog-replicate` | Package ML models with Replicate Cog and push to Replicate — toolchain setup, `cog.yaml`, `predict.py`, large weights with `pget`, gated HF weights, local testing, and API verification. | [`cog-replicate/SKILL.md`](cog-replicate/SKILL.md) |
 
 
 ## Repository Structure
@@ -136,6 +137,18 @@ These skills turn repeated working styles into reusable instructions.
 │       └── opencode-cli.sh
 ├── colab-cli/
 │   └── SKILL.md
+├── cog-replicate/
+│   ├── SKILL.md
+│   ├── references/
+│   │   ├── errors.md
+│   │   ├── optimizations.md
+│   │   └── patterns.md
+│   └── scripts/
+│       ├── http_predict.py
+│       ├── push_detached.sh
+│       ├── run_replicate.py
+│       ├── telemetry.py
+│       └── wsl_setup.sh
 └── supermemory-fetch.md
 ```
 
