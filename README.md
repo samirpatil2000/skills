@@ -53,6 +53,7 @@ These skills turn repeated working styles into reusable instructions.
 | `opencode-cli` | Delegate tasks to OpenCode Zen API and CLI with multi-protocol auto-routing across DeepSeek, Kimi K3, Gemini 4 Argon, and Qwen. | [`opencode-cli/SKILL.md`](opencode-cli/SKILL.md) |
 | `colab-cli` | Run code on Google Colab CPU, GPU (T4, L4, A100, H100), and TPU (v5e1, v6e1) runtimes via `colab`. | [`colab-cli/SKILL.md`](colab-cli/SKILL.md) |
 | `cog-replicate` | Package ML models with Replicate Cog and push to Replicate — toolchain setup, `cog.yaml`, `predict.py`, large weights with `pget`, gated HF weights, local testing, and API verification. | [`cog-replicate/SKILL.md`](cog-replicate/SKILL.md) |
+| `tripo-cli` | Generate and process 3D assets with Tripo3D CLI and Blender — modular sub-asset decomposition, PBR texturing, rigging, animation, and retopology. | [`tripo-cli/SKILL.md`](tripo-cli/SKILL.md) |
 
 
 ## Repository Structure
@@ -149,6 +150,9 @@ These skills turn repeated working styles into reusable instructions.
 │       ├── run_replicate.py
 │       ├── telemetry.py
 │       └── wsl_setup.sh
+├── tripo-cli/
+│   ├── README.md
+│   └── SKILL.md
 └── supermemory-fetch.md
 ```
 
