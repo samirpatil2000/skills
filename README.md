@@ -54,6 +54,7 @@ These skills turn repeated working styles into reusable instructions.
 | `colab-cli` | Run code on Google Colab CPU, GPU (T4, L4, A100, H100), and TPU (v5e1, v6e1) runtimes via `colab`. | [`colab-cli/SKILL.md`](colab-cli/SKILL.md) |
 | `cog-replicate` | Package ML models with Replicate Cog and push to Replicate — toolchain setup, `cog.yaml`, `predict.py`, large weights with `pget`, gated HF weights, local testing, and API verification. | [`cog-replicate/SKILL.md`](cog-replicate/SKILL.md) |
 | `tripo-cli` | Generate and process 3D assets with Tripo3D CLI and Blender — modular sub-asset decomposition, PBR texturing, rigging, animation, and retopology. | [`tripo-cli/SKILL.md`](tripo-cli/SKILL.md) |
+| `orchestrator` | Orchestrate multi-step, multi-agent workflows by planning, delegating to the cheapest capable model tier, briefing from zero, running in parallel, verifying outputs, and integrating results. | [`orchestrator/SKILL.md`](orchestrator/SKILL.md) |
 
 
 ## Repository Structure
@@ -152,6 +153,8 @@ These skills turn repeated working styles into reusable instructions.
 │       └── wsl_setup.sh
 ├── tripo-cli/
 │   ├── README.md
+│   └── SKILL.md
+├── orchestrator/
 │   └── SKILL.md
 └── supermemory-fetch.md
 ```
