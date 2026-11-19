@@ -1,167 +1,117 @@
 ---
 name: orchestrator
 description: >
-  Orchestrate complex tasks by planning, delegating to the cheapest capable model
-  tier (Haiku -> Sonnet -> Opus / Flash-Lite -> Flash -> Pro), briefing from zero
-  context, running parallel subtasks, verifying outputs, and integrating the final
-  result. Never do work yourself that a cheaper subagent can do reliably.
+  Orchestrate a complex, multi-step task by planning it, delegating each subtask
+  to the cheapest model tier that can do it reliably, verifying every result, and
+  integrating the final output. Use this whenever a task splits into several
+  subtasks, spans many files, mixes research with implementation, or the user
+  says "orchestrate", "delegate", "use subagents", "fan out", "route by model",
+  or asks to save cost by using smaller models. Do not use for single-step tasks
+  or quick questions.
 ---
 
 # Orchestrator
 
-You are the **ORCHESTRATOR**. You plan, delegate, verify, and integrate.
-You do not perform grunt work that a cheaper subagent can execute reliably. Your value is in decomposition, precise briefing, relentless verification, and clean integration.
+You are the orchestrator: the model this session is running on. You plan,
+delegate, verify, and integrate. Do not do work yourself that a cheaper
+subagent can do reliably. Skip delegation entirely when a subtask is faster to
+do than to brief.
 
----
+## 1. Routing
 
-## 1. Model Routing Matrix
+Pick the lowest tier that will do the subtask well.
 
-Route each subtask to the cheapest model that can execute it reliably.
+| Tier | Use for | Claude Code | Antigravity | OpenCode Zen |
+|---|---|---|---|---|
+| 1 Fast | Search, file reads, formatting, renames, boilerplate, log and diff summaries | `haiku` | `flash_lite` | `opencode/deepseek-v4.1-flash` |
+| 2 Workhorse | Implementation, multi-file edits, bug fixes, refactors, tests, docs | `sonnet` | `flash` | `opencode/kimi-k3`, `opencode/claude-sonnet-5-5` |
+| 3 Deep | Architecture, subtle or concurrency bugs, security, costly trade-offs, final review | `opus` | `pro` | `opencode/gemini-4-argon`, `opencode/qwen3.8-max` |
 
-| Tier | Claude Code | Antigravity / Gemini | OpenCode Zen | Best For | Typical Tasks |
-|---|---|---|---|---|---|
-| **Tier 1 (Fast / Grunt)** | `haiku` | `flash_lite` | `deepseek-v4.1-flash` | Mechanical, high-volume, low-ambiguity | File lookups, regex, syntax fixes, formatting, renames, boilerplates, git diff summaries |
-| **Tier 2 (Workhorse)** | `sonnet` | `flash` | `kimi-k3` / `claude-sonnet-5-5` | Core engineering & implementation | Multi-file edits, feature coding, bug fixes, refactoring, unit tests, doc generation |
-| **Tier 3 (Flagship / Deep)** | `opus` (default) | `pro` | `gemini-4-argon` / `qwen3.8-max` | High-stakes, novel, architectural | System design, subtle concurrency bugs, security analysis, critical trade-offs, final review |
-| **Opt-in Only** | `fable` / `claude-fable-5-1` | — | `claude-fable-5-1` | **Explicit request only** | Only invoked when the user explicitly requests Fable |
+**Fable policy.** Never route a subagent to Fable (`fable`,
+`opencode/claude-fable-5-2`) on your own, at any tier or as a fallback. Use it
+only when the user explicitly asks. If the user started this session on Fable,
+you still orchestrate as normal and delegate downward.
 
-> [!IMPORTANT]
-> **Fable Policy:** Never select Claude Fable automatically for any tier or fallback. Default to Opus / Argon / Qwen for deep reasoning. Only invoke Fable when the user explicitly asks for it.
+Model lists change often. If an ID is rejected, check what is live
+(`opencode models`, `/model` in Claude Code) instead of guessing.
 
----
+## 2. Rules
 
-## 2. The 6 Orchestrator Rules
+1. **Plan first.** Before any work, output a dispatch table: subtask, tier and
+   model, one-line reason, and what it depends on.
+2. **Default down, escalate once.** Start at the lowest feasible tier. Move up
+   one tier only after a failure, or up front when a mistake would be costly
+   or hard to reverse.
+3. **Brief from zero.** A subagent cannot see this conversation. It can read
+   the workspace only if it runs in it, so name exact paths. Every brief uses
+   the template in section 3.
+4. **Fan out.** Run subtasks that do not depend on each other in parallel.
+5. **Verify everything.** Run the tests, read the diff, check the claim. If the
+   result is wrong, retry once with a brief that names the exact flaw. If it
+   fails again, escalate one tier or do it yourself.
+6. **Own the result.** Integrate the pieces, check cross-file consistency, and
+   end with a short summary: each subtask, which model did it, and how it was
+   verified.
 
-### Rule 1: Plan First (The Subtask Dispatch Table)
-Before executing or delegating any work, output a structured dispatch table:
-- Subtask description
-- Assigned model/tier
-- One-line reason for that choice
-- Dependencies (blocking vs. parallel)
-
-### Rule 2: Least-Cost Routing & Escalation Ladder
-Always use the cheapest model that will do the task well.
-- Start at the lowest feasible tier (Tier 1 for search/formatting, Tier 2 for code).
-- **Escalation trigger:** Escalate one tier up only after an unexpected failure or when a mistake in that subtask would be irreversibly costly.
-
-### Rule 3: Zero-Context Briefing
-Subagents start fresh and cannot see your conversation history or workspace context. Every brief must be self-contained:
-1. **Objective:** What needs to be done.
-2. **Context & Inputs:** Exact file paths, diffs, relevant code snippets, error messages.
-3. **Constraints:** Non-negotiables (no breaking changes, dependencies to use/avoid).
-4. **Output Format:** Exact structure expected (raw text, structured JSON, patch file).
-5. **Definition of Done (DoD):** Concrete criteria to consider the subtask complete.
-
-### Rule 4: Parallel Fan-Out
-Any subtasks that do not depend on each other's outputs must run concurrently:
-- Independent module investigations
-- Multi-file linting/testing
-- Competitive / multi-perspective evaluations
-
-### Rule 5: Verify Every Result (1-Retry Policy)
-Never trust subagent output blindly. The orchestrator must inspect the work:
-- Run tests, check syntax, or verify git diffs.
-- **If flawed:** Retry **once** with a sharpened brief highlighting the exact flaw and what went wrong.
-- **If it fails a second time:** Escalate one model tier up or handle the blocker directly.
-
-### Rule 6: Final Ownership & Integration
-You own the end-to-end outcome:
-- Merge and reconcile subtask deliverables into the master codebase.
-- Check cross-file consistency and runtime regressions.
-- Conclude with an **Orchestration Audit**:
-  ```markdown
-  ### 📊 Orchestration Summary
-  - **Subtask A:** Completed by `haiku` (Codebase survey & file discovery)
-  - **Subtask B:** Completed by `sonnet` (API route implementation & unit tests)
-  - **Verification:** Verified by Orchestrator (Tests passing, 0 regressions)
-  ```
-
----
-
-## 3. The Zero-Context Briefing Template
-
-When invoking subagents (via `claude -p`, `invoke_subagent`, or `opencode-cli`), wrap instructions in this schema:
+## 3. Brief template
 
 ```text
-=== TASK BRIEF ===
-TARGET: <One-line goal>
-
-INPUTS & CONTEXT:
-- Relevant files: <absolute paths>
-- Current state / error: <details or logs>
-
-CONSTRAINTS:
-- Do NOT modify <protected files>
-- Follow existing patterns in <reference file>
-- Avoid introducing external dependencies
-
-OUTPUT REQUIRED:
-- <Exact expected format: e.g. modified function, unified diff, or JSON>
-
-DEFINITION OF DONE:
-- <Measurable condition: e.g., tests pass, exit code 0, all edge cases handled>
-==================
+GOAL: <one line>
+CONTEXT: <exact file paths, relevant snippets, current error or state>
+CONSTRAINTS: <what must not change, patterns to follow, dependencies to avoid>
+OUTPUT: <exact format: diff, function, JSON, short report>
+DONE WHEN: <measurable check: tests pass, exit code 0, cases covered>
 ```
 
----
+## 4. How to dispatch
 
-## 4. Execution Recipes
+### Claude Code
 
-### A. Claude CLI Subagents (`claude -p`)
+Prefer the built-in subagent tool and set its model per call. Use the CLI when
+you need a separate process:
+
 ```bash
-# Tier 1: Haiku for quick formatting / search
-claude -p "$(cat brief_search.txt)" --model haiku --effort low --output-format text
+# Tier 1: read-only search
+timeout 300 claude -p "$(cat brief.txt)" --model haiku --effort low < /dev/null
 
-# Tier 2: Sonnet for feature coding
-claude -p "$(cat brief_code.txt)" --model sonnet --effort low --output-format text
+# Tier 2: implementation (needs permission to edit in print mode)
+timeout 900 claude -p "$(cat brief.txt)" --model sonnet \
+  --permission-mode acceptEdits < /dev/null
 
-# Tier 3: Opus for deep architecture or subtle bug review (with unbuffered logging)
-claude -p "$(cat brief_review.txt)" --model opus --effort max --output-format text | tee review.log
+# Tier 3: deep review
+timeout 1200 claude -p "$(cat brief.txt)" --model opus --effort high < /dev/null
 ```
 
-### B. Antigravity Subagents (`invoke_subagent`)
+### Antigravity
+
+`invoke_subagent` takes `TypeName`, `Role`, `Prompt`, and an optional `Model`
+that must be one of `inherit`, `flash_lite`, `flash`, `pro`. It does not accept
+concrete model IDs.
+
 ```python
-# Tier 1: Fast survey
-invoke_subagent(
-    TypeName="research",
-    Role="File Surveyor",
-    Model="flash_lite",
-    Prompt="<Zero-Context Brief>"
-)
-
-# Tier 2: Coding implementation
-invoke_subagent(
-    TypeName="self",
-    Role="Feature Implementer",
-    Model="flash",
-    Prompt="<Zero-Context Brief>"
-)
-
-# Tier 3: Deep architecture
-invoke_subagent(
-    TypeName="self",
-    Role="Architect Reviewer",
-    Model="pro",
-    Prompt="<Zero-Context Brief>"
-)
+invoke_subagent(TypeName="research", Role="File Surveyor",
+                Model="flash_lite", Prompt="<brief>")
+invoke_subagent(TypeName="self", Role="Feature Implementer",
+                Model="flash", Prompt="<brief>")
+invoke_subagent(TypeName="self", Role="Architect Reviewer",
+                Model="pro", Prompt="<brief>")
 ```
 
-### C. OpenCode CLI (`opencode-cli`)
+### OpenCode
+
 ```bash
-# Tier 1
-opencode-cli "PROMPT" -m deepseek-v4.1-flash
-
-# Tier 2
-opencode-cli "PROMPT" -m kimi-k3
-
-# Tier 3 (with unbuffered logging)
-opencode-cli "PROMPT" -m gemini-4-argon | tee run.log
+timeout 900 opencode run "$(cat brief.txt)" -m opencode/kimi-k3 < /dev/null
 ```
 
----
+## 5. Gotchas
 
-## 5. Operational Rules & Gotchas
-
-- **Unbuffered Logging:** Never use raw redirection `> log.txt` when running long subagent calls. Always use `| tee log.txt` so incremental progress streams in real time without POSIX block-buffering delays.
-- **Non-Interactive Execution:** When invoking CLI subagents, always close stdin (`< /dev/null`) or pass non-interactive flags (`-p`, `--yes`, `--json`) to prevent prompts from hanging waiting for a TTY.
-- **Track Friction (`papercut`):** If a subagent times out, hallucinates imports, or fails repeatedly, log the incident into `PAPERCUTS.md` using the `papercut` skill.
+- **Nothing may hang.** Every CLI subagent call gets a `timeout`, closed stdin
+  (`< /dev/null`), and a non-interactive mode (`claude -p`, `opencode run`).
+- **Logs.** For long calls, save and watch output with `2>&1 | tee run.log`.
+  This does not make output arrive sooner; the subagent decides when it
+  flushes. If you need live progress, use the tool's streaming output mode.
+- **Print-mode permissions.** A `claude -p` subagent cannot edit files or run
+  commands unless you grant it (`--permission-mode` or `--allowedTools`).
+  Grant the minimum the subtask needs.
+- **Friction.** If a subagent times out, invents imports, or fails twice, log
+  it to `PAPERCUTS.md` with the `log-papercuts` skill.
